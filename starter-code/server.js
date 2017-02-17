@@ -73,8 +73,8 @@ app.get('/articles', function(request, response) {
   );
 });
 
-// TODO: How is a 'post' route different than a 'get' route?
-// Put your answer here...
+// DONE: How is a 'post' route different than a 'get' route?
+// Ideally, a post route creates new data and a get route retrieves data, but they do not do that implicitly. The behavior of a route is dependent on what's inside. The names are just semantic tags.
 app.post('/articles', function(request, response) {
   client.query(
     'INSERT INTO authors(author, "authorUrl") VALUES($1, $2) ON CONFLICT DO NOTHING', // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
@@ -88,9 +88,9 @@ app.post('/articles', function(request, response) {
   function queryTwo() {
     client.query(
       // DONE: What is the purpose of the $1 in the following line of code?
-      // It's a placeholder for the first variable.
+      // It's a postgres placeholder for the author's name.
       `SELECT author_id FROM authors WHERE author=$1`, // DONE: Write a SQL query to retrieve the author_id from the authors table for the new article
-      [request.body.author], // DONE: Add the author name as data for the SQL query
+      [request.body.author], // DONE: Add the author name as data for the SQL query.
       function(err, result) {
         if (err) console.error(err)
         queryThree(result.rows[0].author_id) // This is our third query, to be executed when the second is complete. We are also passing the author_id into our third query
@@ -99,7 +99,7 @@ app.post('/articles', function(request, response) {
   }
 
   function queryThree(author_id) {
-      // DONE: What number in the full-stack diagram best matches what is happening in line 100? 3. We're asking to insert an article from a local source into the database.
+      // DONE: What number in the full-stack diagram best matches what is happening in line 100? 3. We're asking to insert an article from a local source into the database. The controller is dispatching a query to the model.
     client.query(
       `INSERT INTO
       articles(author_id, title, category, "publishedOn", body)
@@ -113,7 +113,7 @@ app.post('/articles', function(request, response) {
       ], // DONE: Add the data from our new article, including the author_id, as data for the SQL query.
       function(err) {
         if (err) console.error(err);
-        // DONE: What number in the full-stack diagram best matches what is happening in line 114? 5. That's the response that came back from the database to the user telling us that the insert is complete.
+        // DONE: What number in the full-stack diagram best matches what is happening in line 114? 5. That's the response that came back from the controller to the view telling us that the insert is complete.
         response.send('insert complete');
       }
     );
@@ -134,7 +134,7 @@ app.put('/articles/:id', function(request, response) {
   function queryTwo(author_id) {
     client.query(
       // DONE: In a sentence or two, describe how a SQL 'UPDATE' is different from an 'INSERT', and identify which REST verbs and which CRUD components align with them.
-      //A SQL UPDATE changes particular fields in a record, while a SQL INSERT adds a new record. UPDATE is update in CRUD or PUT in REST.
+      //A SQL UPDATE modifies an existing record, while a SQL INSERT creates a new record. UPDATE is Update(U) in CRUD or PUT in REST. INSERT is Create(C) in CRUD and POST in REST.
       `UPDATE authors
       SET author=$1, "authorUrl"=$2
       WHERE author_id=$3;`, // DONE: Write a SQL query to update an existing author record
@@ -163,16 +163,16 @@ app.put('/articles/:id', function(request, response) {
   }
 });
 
-  // DONE: What number in the full-stack diagram best matches what is happening in line 163? 2. That's the request from the user to the server.
+  // DONE: What number in the full-stack diagram best matches what is happening in line 163? 2. That's the request from the user to the server. (A request from the view(an event) is directed to the appropriate route in the server(the listener invokes the appropriate handler).)
 app.delete('/articles/:id', function(request, response) {
-    // DONE: What number in the full-stack diagram best matches what is happening in lines 165? 3. That's the query from the server to the database.
+    // DONE: What number in the full-stack diagram best matches what is happening in lines 165? 3. That's the query from the controller to the model (server to database).
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
-    // TODO: What does the value in 'request.params.id' come from? If unsure, look in the Express docs.
-    // Put your response here...
+    // DONE: What does the value in 'request.params.id' come from? If unsure, look in the Express docs.
+    // params is a property of the request, and that's part of the ajax query. It comes from the ':id' in the URL of the AJAX request, which in this case was sent out by Article.prototype.deleteRecord, and it becomes the $1 that is sent off to the database.
     [request.params.id]
   );
-  // TODO: What number in the full-stack diagram best matches what is happening in line 171?
+  // TODO: What number in the full-stack diagram best matches what is happening in line 171? It's a response. 5.
   response.send('Delete complete');
 });
 
