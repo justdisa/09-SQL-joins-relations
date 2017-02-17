@@ -6,11 +6,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
-// TODO: Don't forget to set your own conString if required by your system
-const conString = 'postgres://localhost:5432';
-// TODO: Using a sentence or two, describe what is happening in Line 12.
-// Put your response here...
-const client = new pg.Client(conString);
+// TODO: Don't forget to set your own conString if required by your system. Need name and password.
+const conString = 'postgres://localhost:5432';//postgres refers to the protocol we are using.
+// DONE: Using a sentence or two, describe what is happening in Line 13.
+// Creating a new variable called constant that is read only (immutable). Into it we are assigning an object thta is a new instance of the library pg that will facilitate our communications and data transfer between the server (controller) and the database (model). The conString specifies the port over which this exchange between the controller and the model will take place.
+const client = new pg.Client(conString);//
 client.connect();
 
 app.use(bodyParser.json());
@@ -28,11 +28,11 @@ app.get('/new', function(request, response) {
 
 // Following are the routes for making API calls to enact CRUD Operations on our database
 
-// TODO: Some of the following questions will refer back to the image called 'full-stack-diagram' that has been added to the lab directory. In that image you will see that the various parts of the application's activity have been numbered 1-5. When prompted in the following questions, identify which number best matches the location of a given process. For instance, the following line of code, where the server is handling a request from the view layer, would match up with #2.
+// DONE: Some of the following questions will refer back to the image called 'full-stack-diagram' that has been added to the lab directory. In that image you will see that the various parts of the application's activity have been numbered 1-5. When prompted in the following questions, identify which number best matches the location of a given process. For instance, the following line of code, where the server is handling a request from the view layer, would match up with #2.
 app.get('/articles', function(request, response) {
   // REVIEW: We now have two queries which create separate tables in our DB, and reference the authors in our articles.
   // DONE: What number in the full-stack diagram best matches what is happening in lines 35-42?
-  // 3. We're asking the database to create a table if it does not yet exist.
+  // 3. The controller is sending a query to the model to create a table if a table does not yet exist.
   client.query(`
     CREATE TABLE IF NOT EXISTS
     authors (
@@ -53,10 +53,13 @@ app.get('/articles', function(request, response) {
     );`
   ) // DONE: Referring to lines 45-52, answer the following questions:
     // What is a primary key?
-    // A primary key is the field in table a that you will match up with a field in table b when the two tables are joined.
+    // A primary key is the field in table a that you will match up with a field in table b when the two tables are joined: A unique identifier for each record.
     // +++++++++++++++++++++
     // What does VARCHAR mean?
-    // Variable character field. It's a field in a table that can hold letters or numbers or a combination.
+    // Variable character field. A data type for SQL. It's a field in a table that can hold letters or numbers or a combination. Handled as a string.
+
+    // VARCHAR(24) - maximum possible length. VAR means you're accepting variability in the character set.
+    //CHAR(24) - the record will pad out any un-needed places with space characters.
     // +++++++++++++++++++++
   // REVIEW: This query will join the data together from our tables and send it back to the client.
   client.query(`
