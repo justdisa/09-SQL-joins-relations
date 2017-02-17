@@ -6,11 +6,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
-// TODO: Don't forget to set your own conString if required by your system
-const conString = 'postgres://localhost:5432';
-// TODO: Using a sentence or two, describe what is happening in Line 12.
-// Put your response here...
-const client = new pg.Client(conString);
+// TODO: Don't forget to set your own conString if required by your system. Need name and password.
+const conString = 'postgres://localhost:5432';//postgres refers to the protocol we are using.
+// DONE: Using a sentence or two, describe what is happening in Line 13.
+// Creating a new variable called constant that is read only (immutable). Into it we are assigning an object thta is a new instance of the library pg that will facilitate our communications and data transfer between the server (controller) and the database (model). The conString specifies the port over which this exchange between the controller and the model will take place.
+const client = new pg.Client(conString);//
 client.connect();
 
 app.use(bodyParser.json());
@@ -28,11 +28,11 @@ app.get('/new', function(request, response) {
 
 // Following are the routes for making API calls to enact CRUD Operations on our database
 
-// TODO: Some of the following questions will refer back to the image called 'full-stack-diagram' that has been added to the lab directory. In that image you will see that the various parts of the application's activity have been numbered 1-5. When prompted in the following questions, identify which number best matches the location of a given process. For instance, the following line of code, where the server is handling a request from the view layer, would match up with #2.
+// DONE: Some of the following questions will refer back to the image called 'full-stack-diagram' that has been added to the lab directory. In that image you will see that the various parts of the application's activity have been numbered 1-5. When prompted in the following questions, identify which number best matches the location of a given process. For instance, the following line of code, where the server is handling a request from the view layer, would match up with #2.
 app.get('/articles', function(request, response) {
   // REVIEW: We now have two queries which create separate tables in our DB, and reference the authors in our articles.
-  // TODO: What number in the full-stack diagram best matches what is happening in lines 35-42?
-  // Put your response here...
+  // DONE: What number in the full-stack diagram best matches what is happening in lines 35-42?
+  // 3. The controller is sending a query to the model to create a table if a table does not yet exist.
   client.query(`
     CREATE TABLE IF NOT EXISTS
     authors (
@@ -51,12 +51,15 @@ app.get('/articles', function(request, response) {
       "publishedOn" DATE,
       body TEXT NOT NULL
     );`
-  ) // TODO: Referring to lines 45-52, answer the following questions:
+  ) // DONE: Referring to lines 45-52, answer the following questions:
     // What is a primary key?
-    // Put your response here...
+    // A primary key is the field in table a that you will match up with a field in table b when the two tables are joined: A unique identifier for each record.
     // +++++++++++++++++++++
     // What does VARCHAR mean?
-    // Put your response here...
+    // Variable character field. A data type for SQL. It's a field in a table that can hold letters or numbers or a combination. Handled as a string.
+
+    // VARCHAR(24) - maximum possible length. VAR means you're accepting variability in the character set.
+    //CHAR(24) - the record will pad out any un-needed places with space characters.
     // +++++++++++++++++++++
   // REVIEW: This query will join the data together from our tables and send it back to the client.
   client.query(`
@@ -70,8 +73,8 @@ app.get('/articles', function(request, response) {
   );
 });
 
-// TODO: How is a 'post' route different than a 'get' route?
-// Put your answer here...
+// DONE: How is a 'post' route different than a 'get' route?
+// Ideally, a post route creates new data and a get route retrieves data, but they do not do that implicitly. The behavior of a route is dependent on what's inside. The names are just semantic tags.
 app.post('/articles', function(request, response) {
   client.query(
     'INSERT INTO authors(author, "authorUrl") VALUES($1, $2) ON CONFLICT DO NOTHING', // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING
@@ -84,10 +87,10 @@ app.post('/articles', function(request, response) {
 
   function queryTwo() {
     client.query(
-      // TODO: What is the purpose of the $1 in the following line of code?
-      // Put your response here...
+      // DONE: What is the purpose of the $1 in the following line of code?
+      // It's a postgres placeholder for the author's name.
       `SELECT author_id FROM authors WHERE author=$1`, // DONE: Write a SQL query to retrieve the author_id from the authors table for the new article
-      [request.body.author], // DONE: Add the author name as data for the SQL query
+      [request.body.author], // DONE: Add the author name as data for the SQL query.
       function(err, result) {
         if (err) console.error(err)
         queryThree(result.rows[0].author_id) // This is our third query, to be executed when the second is complete. We are also passing the author_id into our third query
@@ -96,7 +99,7 @@ app.post('/articles', function(request, response) {
   }
 
   function queryThree(author_id) {
-      // TODO: What number in the full-stack diagram best matches what is happening in line 100?
+      // DONE: What number in the full-stack diagram best matches what is happening in line 100? 3. We're asking to insert an article from a local source into the database. The controller is dispatching a query to the model.
     client.query(
       `INSERT INTO
       articles(author_id, title, category, "publishedOn", body)
@@ -110,7 +113,7 @@ app.post('/articles', function(request, response) {
       ], // DONE: Add the data from our new article, including the author_id, as data for the SQL query.
       function(err) {
         if (err) console.error(err);
-        // TODO: What number in the full-stack diagram best matches what is happening in line 114?
+        // DONE: What number in the full-stack diagram best matches what is happening in line 114? 5. That's the response that came back from the controller to the view telling us that the insert is complete.
         response.send('insert complete');
       }
     );
@@ -130,7 +133,8 @@ app.put('/articles/:id', function(request, response) {
 
   function queryTwo(author_id) {
     client.query(
-      // TODO: In a sentence or two, describe how a SQL 'UPDATE' is different from an 'INSERT', and identify which REST verbs and which CRUD components align with them.
+      // DONE: In a sentence or two, describe how a SQL 'UPDATE' is different from an 'INSERT', and identify which REST verbs and which CRUD components align with them.
+      //A SQL UPDATE modifies an existing record, while a SQL INSERT creates a new record. UPDATE is Update(U) in CRUD or PUT in REST. INSERT is Create(C) in CRUD and POST in REST.
       `UPDATE authors
       SET author=$1, "authorUrl"=$2
       WHERE author_id=$3;`, // DONE: Write a SQL query to update an existing author record
@@ -159,16 +163,16 @@ app.put('/articles/:id', function(request, response) {
   }
 });
 
-  // TODO: What number in the full-stack diagram best matches what is happening in line 163?
+  // DONE: What number in the full-stack diagram best matches what is happening in line 163? 2. That's the request from the user to the server. (A request from the view(an event) is directed to the appropriate route in the server(the listener invokes the appropriate handler).)
 app.delete('/articles/:id', function(request, response) {
-    // TODO: What number in the full-stack diagram best matches what is happening in lines 165?
+    // DONE: What number in the full-stack diagram best matches what is happening in lines 165? 3. That's the query from the controller to the model (server to database).
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
-    // TODO: What does the value in 'request.params.id' come from? If unsure, look in the Express docs.
-    // Put your response here...
+    // DONE: What does the value in 'request.params.id' come from? If unsure, look in the Express docs.
+    // params is a property of the request, and that's part of the ajax query. It comes from the ':id' in the URL of the AJAX request, which in this case was sent out by Article.prototype.deleteRecord, and it becomes the $1 that is sent off to the database.
     [request.params.id]
   );
-  // TODO: What number in the full-stack diagram best matches what is happening in line 171?
+  // TODO: What number in the full-stack diagram best matches what is happening in line 171? It's a response. 5.
   response.send('Delete complete');
 });
 
