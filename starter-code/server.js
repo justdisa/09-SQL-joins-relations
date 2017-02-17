@@ -31,8 +31,8 @@ app.get('/new', function(request, response) {
 // TODO: Some of the following questions will refer back to the image called 'full-stack-diagram' that has been added to the lab directory. In that image you will see that the various parts of the application's activity have been numbered 1-5. When prompted in the following questions, identify which number best matches the location of a given process. For instance, the following line of code, where the server is handling a request from the view layer, would match up with #2.
 app.get('/articles', function(request, response) {
   // REVIEW: We now have two queries which create separate tables in our DB, and reference the authors in our articles.
-  // TODO: What number in the full-stack diagram best matches what is happening in lines 35-42?
-  // Put your response here...
+  // DONE: What number in the full-stack diagram best matches what is happening in lines 35-42?
+  // 3. We're asking the database to create a table if it does not yet exist.
   client.query(`
     CREATE TABLE IF NOT EXISTS
     authors (
@@ -51,12 +51,12 @@ app.get('/articles', function(request, response) {
       "publishedOn" DATE,
       body TEXT NOT NULL
     );`
-  ) // TODO: Referring to lines 45-52, answer the following questions:
+  ) // DONE: Referring to lines 45-52, answer the following questions:
     // What is a primary key?
-    // Put your response here...
+    // A primary key is the field in table a that you will match up with a field in table b when the two tables are joined.
     // +++++++++++++++++++++
     // What does VARCHAR mean?
-    // Put your response here...
+    // Variable character field. It's a field in a table that can hold letters or numbers or a combination.
     // +++++++++++++++++++++
   // REVIEW: This query will join the data together from our tables and send it back to the client.
   client.query(`
@@ -84,8 +84,8 @@ app.post('/articles', function(request, response) {
 
   function queryTwo() {
     client.query(
-      // TODO: What is the purpose of the $1 in the following line of code?
-      // Put your response here...
+      // DONE: What is the purpose of the $1 in the following line of code?
+      // It's a placeholder for the first variable.
       `SELECT author_id FROM authors WHERE author=$1`, // DONE: Write a SQL query to retrieve the author_id from the authors table for the new article
       [request.body.author], // DONE: Add the author name as data for the SQL query
       function(err, result) {
@@ -96,7 +96,7 @@ app.post('/articles', function(request, response) {
   }
 
   function queryThree(author_id) {
-      // TODO: What number in the full-stack diagram best matches what is happening in line 100?
+      // DONE: What number in the full-stack diagram best matches what is happening in line 100? 3. We're asking to insert an article from a local source into the database.
     client.query(
       `INSERT INTO
       articles(author_id, title, category, "publishedOn", body)
@@ -110,7 +110,7 @@ app.post('/articles', function(request, response) {
       ], // DONE: Add the data from our new article, including the author_id, as data for the SQL query.
       function(err) {
         if (err) console.error(err);
-        // TODO: What number in the full-stack diagram best matches what is happening in line 114?
+        // DONE: What number in the full-stack diagram best matches what is happening in line 114? 5. That's the response that came back from the database to the user telling us that the insert is complete.
         response.send('insert complete');
       }
     );
@@ -130,7 +130,8 @@ app.put('/articles/:id', function(request, response) {
 
   function queryTwo(author_id) {
     client.query(
-      // TODO: In a sentence or two, describe how a SQL 'UPDATE' is different from an 'INSERT', and identify which REST verbs and which CRUD components align with them.
+      // DONE: In a sentence or two, describe how a SQL 'UPDATE' is different from an 'INSERT', and identify which REST verbs and which CRUD components align with them.
+      //A SQL UPDATE changes particular fields in a record, while a SQL INSERT adds a new record. UPDATE is update in CRUD or PUT in REST.
       `UPDATE authors
       SET author=$1, "authorUrl"=$2
       WHERE author_id=$3;`, // DONE: Write a SQL query to update an existing author record
@@ -159,9 +160,9 @@ app.put('/articles/:id', function(request, response) {
   }
 });
 
-  // TODO: What number in the full-stack diagram best matches what is happening in line 163?
+  // DONE: What number in the full-stack diagram best matches what is happening in line 163? 2. That's the request from the user to the server.
 app.delete('/articles/:id', function(request, response) {
-    // TODO: What number in the full-stack diagram best matches what is happening in lines 165?
+    // DONE: What number in the full-stack diagram best matches what is happening in lines 165? 3. That's the query from the server to the database.
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
     // TODO: What does the value in 'request.params.id' come from? If unsure, look in the Express docs.
